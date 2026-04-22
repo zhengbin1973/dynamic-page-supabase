@@ -375,8 +375,8 @@ trade_count = trade_row["cnt"]
 positions = query_df("""
     SELECT p.ts_code, s.name, s.industry,
            p.shares, p.cost_price, p.current_price,
-           ROUND((p.current_price - p.cost_price) * p.shares, 2) AS profit,
-           ROUND((p.current_price - p.cost_price) / p.cost_price * 100, 2) AS profit_pct,
+           ROUND((p.current_price - p.cost_price) * p.shares::numeric, 2) AS profit,
+           ROUND((p.current_price - p.cost_price) / p.cost_price::numeric * 100, 2) AS profit_pct,
            p.buy_date, p.notes
     FROM positions p LEFT JOIN stocks s ON p.ts_code = s.ts_code
     ORDER BY profit_pct DESC

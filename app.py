@@ -375,8 +375,8 @@ trade_count = trade_row["cnt"]
 positions = query_df("""
     SELECT p.ts_code, s.name, s.industry,
            p.shares, p.cost_price, p.current_price,
-           ROUND(CAST((p.current_price - p.cost_price) * p.shares AS NUMERIC), 2) AS profit,
-           ROUND(CAST((p.current_price - p.cost_price) / p.cost_price * 100 AS NUMERIC), 2) AS profit_pct,
+           ROUND(((p.current_price - p.cost_price) * p.shares)::numeric, 2) AS profit,
+           ROUND(((p.current_price - p.cost_price) / p.cost_price * 100)::numeric, 2) AS profit_pct,
            p.buy_date, p.notes
     FROM positions p LEFT JOIN stocks s ON p.ts_code = s.ts_code
     ORDER BY profit_pct DESC
@@ -386,10 +386,10 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric("持仓股票", f"{pos_count} 只")
 with col2:
-    total_profit = positions["profit"].sum() if len(positions) > 0 else 0
+    total_profit = positions["profit"].astype(float).sum() if len(positions) > 0 else 0
     st.metric("总盈亏", f"¥{total_profit:,.0f}")
 with col3:
-    avg_pct = positions["profit_pct"].mean() if len(positions) > 0 else 0
+    avg_pct = positions["profit_pct"].astype(float).mean() if len(positions) > 0 else 0
     st.metric("平均收益率", f"{avg_pct:.2f}%")
 with col4:
     st.metric("交易笔数", f"{trade_count} 笔")

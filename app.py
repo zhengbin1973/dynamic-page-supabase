@@ -74,13 +74,18 @@ CREATE TABLE IF NOT EXISTS briefings (
 
 
 def get_connection():
-    """获取数据库连接"""
+    """获取数据库连接（普通游标，用于 pandas 查询）"""
+    return psycopg2.connect(DATABASE_URL)
+
+
+def get_dict_connection():
+    """获取数据库连接（字典游标，用于返回单行字典）"""
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
 
 def init_db():
     """初始化数据库，如果是首次则写入演示数据"""
-    conn = get_connection()
+    conn = get_dict_connection()
     cur = conn.cursor()
     cur.execute(TABLES_SQL)
     conn.commit()
@@ -214,13 +219,13 @@ def execute_sql(sql, params=None):
 
 
 def query_one(sql, params=None):
-    """查询单个值"""
-    conn = get_connection()
+    """查询单行，返回字典"""
+    conn = get_dict_connection()
     try:
         cur = conn.cursor()
         cur.execute(sql, params or ())
         row = cur.fetchone()
-        return row
+        return dict(row) if row else {}
     finally:
         conn.close()
 
